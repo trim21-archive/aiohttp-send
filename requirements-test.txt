@@ -1,0 +1,4 @@
+brotlipy
+pytest
+pytest-aiohttp
+codecov

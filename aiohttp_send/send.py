@@ -16,19 +16,19 @@ import os
 import datetime
 
 
-async def send(request: aiohttp.web.Request,
-               file_path: str,
-               root: str = '',
-               index: str = None,
-               immutable: bool = False,
-               max_age: int = 0,
-               hidden: bool = True,
-               format: bool = True,
-               brotli: bool = False,
-               gzip: bool = False,
-               set_headers: Union[typing.Callable, None] = None,
-               extensions: Union[List[str], None] = None,
-               **kwargs):
+async def ssend(request: aiohttp.web.Request,
+                file_path: str,
+                root: str = '',
+                index: str = None,
+                immutable: bool = False,
+                max_age: int = 0,
+                hidden: bool = True,
+                format: bool = True,
+                brotli: bool = False,
+                gzip: bool = False,
+                set_headers: Union[typing.Callable, None] = None,
+                extensions: Union[List[str], None] = None,
+                **kwargs):
     res = await _prepare(request,
                          file_path=file_path,
                          root=root,
@@ -57,20 +57,20 @@ async def send(request: aiohttp.web.Request,
         raise web.HTTPNotFound()
 
 
-async def send_stream(request: aiohttp.web.Request,
-                      file_path: str,
-                      root: str = '',
-                      index: str = '',
-                      immutable: bool = False,
-                      max_age: int = 0,
-                      hidden: bool = False,
-                      format: bool = False,
-                      brotli: bool = False,
-                      gzip: bool = False,
-                      set_headers: Union[typing.Callable, None] = None,
-                      extensions: Union[List[str], None] = None,
-                      read_step: int = 1024,
-                      **kwargs):
+async def send(request: aiohttp.web.Request,
+               file_path: str,
+               root: str = '',
+               index: str = '',
+               immutable: bool = False,
+               max_age: int = 0,
+               hidden: bool = True,
+               format: bool = True,
+               brotli: bool = False,
+               gzip: bool = False,
+               set_headers: Union[typing.Callable, None] = None,
+               extensions: Union[List[str], None] = None,
+               read_step: int = 1024 * 4,
+               **kwargs):
     res = await _prepare(request,
                          file_path=file_path,
                          root=root,
@@ -115,8 +115,8 @@ async def _prepare(request: aiohttp.web.Request,
                    index: str = None,
                    immutable=False,
                    max_age=0,
-                   hidden=False,
-                   format=False,
+                   hidden=True,
+                   format=True,
                    brotli=False,
                    gzip=False,
                    set_headers=None,
@@ -128,19 +128,27 @@ async def _prepare(request: aiohttp.web.Request,
     if set_headers:
         if not isinstance(set_headers, types.FunctionType):
             raise ValueError('argument set_headers must be function')
-    # if extensions is None:
-    #     extensions = []
 
-    root = normpath(root) if root else ''
-    root = path.abspath(root)
+    root = root if root else os.getcwd()
+    root = path.abspath(normpath(root))
+    if '..' in file_path:
+        if check_if_out_of_root(path.splitdrive(file_path)[0], file_path):
+            raise web.HTTPForbidden()
+    else:
+        if check_if_out_of_root('/', file_path):
+            raise web.HTTPForbidden()
 
-    # file_path is a dir
-    file_path = normpath(file_path)
-    if root:
+    if path.isabs(file_path):
         file_path = remove_driver(file_path)
+
+    file_path = join(root, file_path)
+
+    file_path = normpath(file_path)
 
     trailing_slash = file_path.endswith(path.sep)
     file_path = unquote_plus(file_path)
+    if check_if_out_of_root(root, file_path):
+        raise web.HTTPForbidden()
 
     if index and trailing_slash:
         file_path = join(file_path, index)
@@ -148,12 +156,10 @@ async def _prepare(request: aiohttp.web.Request,
     if hidden and is_hidden(file_path):
         return
 
-    file_path = join(root, file_path)
-
     encoding_ext = ''
     return_headers = CIMultiDict()
     # serve brotli file when possible otherwise gzipped file when possible
-    accept_encoding = request.headers.get('Accept-Encoding')
+    accept_encoding = request.headers.get('Accept-Encoding', False)
 
     if accept_encoding:
         if brotli and 'br' in accept_encoding \
@@ -163,7 +169,7 @@ async def _prepare(request: aiohttp.web.Request,
             encoding_ext = '.br'
         elif gzip and 'gzip' in accept_encoding \
                 and await file_exist(file_path + '.gz'):
-            return_headers['Content-Encoding'] = 'br'
+            return_headers['Content-Encoding'] = 'gzip'
             file_path = file_path + '.gz'
             encoding_ext = '.gz'
 
@@ -190,7 +196,7 @@ async def _prepare(request: aiohttp.web.Request,
             file_path += '/' + index
             stats = await file_stats(file_path)
         else:
-            return
+            raise web.HTTPNotFound()
 
     if set_headers:
         set_headers(request, file_path, stats, return_headers)
@@ -199,10 +205,12 @@ async def _prepare(request: aiohttp.web.Request,
     if not request.headers.get('Last-Modified'):
         return_headers['Last-Modified'] = to_UTC_string(stats.st_mtime)
     if not request.headers.get('Cache-Control'):
-        directives = ['max-age=' + str(max_age or 0), ]
-        if immutable:
-            directives.append('immutable')
-        return_headers['Cache-Control'] = ','.join(directives)
+        max_age = int(max_age)
+        if max_age:
+            directives = ['max-age=' + str(max_age or 0), ]
+            if immutable:
+                directives.append('immutable')
+            return_headers['Cache-Control'] = ', '.join(directives)
 
     return file_path, return_headers, encoding_ext
 
@@ -257,6 +265,19 @@ async def file_stats(path):
 def remove_driver(file_path):
     if os.path.isabs(file_path):
         driver, file_path = splitdrive(file_path)
-        if file_path.startswith(driver):
-            file_path = file_path[len(driver) + 1:]
+        file_path = file_path[1:]
     return file_path
+
+
+def in_directory(directory, file):
+    # make both absolute
+    directory = os.path.abspath(directory)
+    file = os.path.abspath(file)
+
+    # return true, if the common prefix of both is equal to directory
+    # e.g. /a/b/c/d.rst and directory is /a/b, the common prefix is /a/b
+    return os.path.commonprefix([file, directory]) == directory
+
+
+def check_if_out_of_root(root_path: str, file_path: str):
+    return not in_directory(root_path, join(root_path, file_path))
