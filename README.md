@@ -1,20 +1,20 @@
 # aiohttp_send
 
-This package is used to send file in [aiohttp](https://github.com/aio-libs/aiohttp)
+Send file in [aiohttp](https://github.com/aio-libs/aiohttp)
 
 ## Install 
 
 ```bash
-pip install aiohttp https://github.com/Trim21/aiohttp-send/archive/master.zip
+pip install aiohttp aiohttp-send
 ```
 
 ## Options
 
  - `max_age` Browser cache max-age in milliseconds. (defaults to `0`)
  - `immutable` Tell the browser the resource is immutable and can be cached indefinitely. (defaults to `False`)
- - `hidden` Allow transfer of hidden files. (defaults to `False`)
+ - `hidden` Allow transfer of hidden files. (defaults to `True`)
  - [`root`](#root-path) Root directory to restrict file access.
- - `index` Name of the index file to serve automatically when visiting the root location. (defaults to `index.html`)
+ - `index` Name of the index file to serve automatically when visiting the root location. (defaults to `None`)
  - `gzip` Try to serve the gzipped version of a file automatically when `gzip` is supported by a client and if the requested file with `.gz` extension exists. (defaults to `False`).
  - `brotli` Try to serve the brotli version of a file automatically when `brotli` is supported by a client and if the requested file with `.br` extension exists. (defaults to `False`).
  - `format` If not `False` (defaults to `True`), format the path to serve static file servers and not require a trailing slash for directories, so that you can do both `/directory` and `/directory/`.
@@ -57,7 +57,7 @@ If you want to edit any other header, simply set them before calling `send`.
 
 ```python
 from aiohttp import web
-from aiohttp_send import send, send_stream
+from aiohttp_send import send
 
 app = web.Application()
 
@@ -66,13 +66,8 @@ async def index(request):
     return await send(request, 'index.html')
 
 
-async def big(request):
-    return await send_stream(request, 'a-big-file.html')
-
-
 app.add_routes([
     web.get('/', index),
-    web.get('/big', big),
 ])
 
 web.run_app(app, port=8888)
