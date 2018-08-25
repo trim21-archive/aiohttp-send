@@ -4,6 +4,8 @@ Send file in [aiohttp](https://github.com/aio-libs/aiohttp)
 
 ## Install 
 
+Python 3.6 only now (function arguments type hint does not work in 3.5)
+
 ```bash
 pip install aiohttp aiohttp-send
 ```

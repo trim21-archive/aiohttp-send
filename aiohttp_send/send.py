@@ -16,47 +16,6 @@ import os
 import datetime
 
 
-async def ssend(request: aiohttp.web.Request,
-                file_path: str,
-                root: str = '',
-                index: str = None,
-                immutable: bool = False,
-                max_age: int = 0,
-                hidden: bool = True,
-                format: bool = True,
-                brotli: bool = False,
-                gzip: bool = False,
-                set_headers: Union[typing.Callable, None] = None,
-                extensions: Union[List[str], None] = None,
-                **kwargs):
-    res = await _prepare(request,
-                         file_path=file_path,
-                         root=root,
-                         index=index,
-                         immutable=immutable,
-                         max_age=max_age,
-                         hidden=hidden,
-                         format=format,
-                         brotli=brotli,
-                         gzip=gzip,
-                         set_headers=set_headers,
-                         extensions=extensions,
-                         **kwargs)
-    if res:
-        file_path, return_headers, encoding_ext = res
-        async with aiofiles.open(file_path, mode='rb') as f:
-            contents = await f.read()
-        resp = web.Response(body=contents, headers=return_headers)
-        if not return_headers.get('content-type'):
-            t = file_type(file_path, encoding_ext)
-            if t:
-                resp.content_type = t
-        return resp
-
-    else:
-        raise web.HTTPNotFound()
-
-
 async def send(request: aiohttp.web.Request,
                file_path: str,
                root: str = '',
