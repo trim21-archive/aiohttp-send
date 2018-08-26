@@ -17,7 +17,7 @@ import datetime
 
 
 async def send(request, file_path, root='', index='', immutable=False,
-               max_age=0, hidden=True, format=True, brotli=False, gzip=False,
+               max_age=0, hidden=True, format=True, brotli=True, gzip=True,
                set_headers=None, extensions=None, read_step=1024 * 4, **kwargs):
     """
     :type max_age: int

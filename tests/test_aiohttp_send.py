@@ -226,7 +226,7 @@ async def test_path_malformed_400(aiohttp_client):
 
 async def test_return_raw_file(aiohttp_client):
     app = web.Application()
-    app.router.add_get('/', wrapper('/tests/fixtures/gzip.json', ))
+    app.router.add_get('/', wrapper('/tests/fixtures/gzip.json', gzip=False, brotli=False))
     client = await aiohttp_client(app)
     resp = await client.get('/', )
     assert resp.status == 200
