@@ -7,12 +7,20 @@ import sys
 
 sys.path.append(path.join(path.dirname(__file__), '..'))
 from aiohttp_send import send
-from os.path import abspath
 from aiohttp import web
 import pathlib
 
 fixtures_root = path.join(path.dirname(__file__), './fixtures')
 fixtures_root = pathlib.Path(fixtures_root)
+
+
+def abspath(file_path):
+    """
+    patch python3.5
+
+    """
+    return path.abspath(str(file_path))
+
 
 """
 tests/fixtures/ # fixtures_root

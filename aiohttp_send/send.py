@@ -73,9 +73,9 @@ async def send(request, file_path, root='', index='', immutable=False,
 
 
 async def _prepare(request,
-                   file_path: str,
+                   file_path,
                    root='',
-                   index: str = None,
+                   index=None,
                    immutable=False,
                    max_age=0,
                    hidden=True,
@@ -220,9 +220,9 @@ is_directory = aiofiles.os.wrap(os.path.isdir)
 
 
 class FileState:
-    st_mtime: float
-    st_size: int
-    is_directory: bool
+    st_mtime = 0
+    st_size = 0
+    is_directory = False
 
     def __init__(self, st_mtime, st_size, is_directory):
         self.st_mtime = st_mtime
