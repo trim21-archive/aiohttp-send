@@ -1,3 +1,3 @@
 from .send import send
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'

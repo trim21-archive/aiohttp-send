@@ -1,11 +1,11 @@
 import mimetypes
 import re
-from typing import List, Union
+# from typing import List, Union
 from urllib.parse import unquote_plus
 import logging
 from os.path import splitdrive, normpath, realpath, abspath, join, basename
 from os import path
-import typing
+# import typing
 import types
 import aiofiles
 import aiofiles.os
@@ -16,20 +16,24 @@ import os
 import datetime
 
 
-async def send(request: aiohttp.web.Request,
-               file_path: str,
-               root: str = '',
-               index: str = '',
-               immutable: bool = False,
-               max_age: int = 0,
-               hidden: bool = True,
-               format: bool = True,
-               brotli: bool = False,
-               gzip: bool = False,
-               set_headers: Union[typing.Callable, None] = None,
-               extensions: Union[List[str], None] = None,
-               read_step: int = 1024 * 4,
-               **kwargs):
+async def send(request, file_path, root='', index='', immutable=False,
+               max_age=0, hidden=True, format=True, brotli=False, gzip=False,
+               set_headers=None, extensions=None, read_step=1024 * 4, **kwargs):
+    """
+    :type max_age: int
+    :type request: web.Request
+    :type file_path:str
+    :type root:str
+    :type index: str
+    :type immutable: bool
+    :type hidden: bool
+    :type format: bool
+    :type brotli: bool
+    :type gzip: bool
+    :type set_headers: Union[typing.Callable, None]
+    :type extensions: List[str]
+    :type read_step: int
+    """
     res = await _prepare(request,
                          file_path=file_path,
                          root=root,
@@ -68,7 +72,7 @@ async def send(request: aiohttp.web.Request,
         raise web.HTTPNotFound()
 
 
-async def _prepare(request: aiohttp.web.Request,
+async def _prepare(request,
                    file_path: str,
                    root='',
                    index: str = None,
@@ -81,6 +85,22 @@ async def _prepare(request: aiohttp.web.Request,
                    set_headers=None,
                    extensions=None,
                    **kwargs):
+    """
+    :type max_age: int
+    :type request: web.Request
+    :type file_path:str
+    :type root:str
+    :type index: str
+    :type immutable: bool
+    :type hidden: bool
+    :type format: bool
+    :type brotli: bool
+    :type gzip: bool
+    :type set_headers: Union[typing.Callable, None]
+    :type extensions: List[str]
+    :type read_step: int
+    """
+
     # options
     if not file_path:
         raise ValueError('file_path can\'t be empty string')
@@ -180,10 +200,6 @@ def file_type(file, ext):
         f += ext
     t, _ = mimetypes.guess_type(f)
     return t
-
-
-def decode(path):
-    return unquote_plus(path)
 
 
 def is_hidden(file_path):
