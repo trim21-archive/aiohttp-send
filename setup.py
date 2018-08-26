@@ -17,7 +17,8 @@ def _get_version():
             for line in fp.readlines():
                 if line:
                     line = line.strip()
-                    _version = re.findall(r"^__version__ = '([^']+)'$", line, re.M)
+                    _version = re.findall(r"^__version__ = '([^']+)'$", line,
+                                          re.M)
                     if _version:
                         return _version[0]
         except IndexError:
@@ -28,12 +29,15 @@ version = _get_version()
 if not version:
     raise ValueError('Unable to determine version.')
 
-install_requires = [line.strip() for line in open('requirements.txt', 'r', encoding='utf8').readlines() if line]
+install_requires = [line.strip() for line in
+                    open('requirements.txt', 'r', encoding='utf8').readlines()
+                    if line.strip()]
 
 setup(name='aiohttp-send',
       version=version,
       description="Send file in for aiohttp.web (http server for asyncio)",
       long_description=open('README.md', 'r', encoding='utf8').read(),
+      long_description_content_type='text/markdown',  # This is important!
       classifiers=[
           'License :: OSI Approved :: MIT License',
           'Intended Audience :: Developers',

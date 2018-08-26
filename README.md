@@ -1,5 +1,6 @@
 # aiohttp-send
 
+[![Pypi](https://img.shields.io/pypi/v/aiohttp-send.svg)](https://pypi.org/project/aiohttp-send/)
 [![codecov](https://codecov.io/gh/Trim21/aiohttp-send/branch/master/graph/badge.svg)](https://codecov.io/gh/Trim21/aiohttp-send)
 
 Send file in [aiohttp](https://github.com/aio-libs/aiohttp)
