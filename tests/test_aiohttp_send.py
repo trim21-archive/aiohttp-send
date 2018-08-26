@@ -376,5 +376,42 @@ async def test_last_modified(aiohttp_client):
     assert resp.status == 200
     assert 'GMT' in resp.headers['last-modified']
 
+
 # todo extensions
+
+async def test_no_ext_404(aiohttp_client):
+    app = web.Application()
+    app.router.add_get('/', wrapper('/tests/fixtures/user', ))
+    client = await aiohttp_client(app)
+    resp = await client.get('/')
+    assert resp.status == 404
+
+
+async def test_no_ext_not_match_404(aiohttp_client):
+    app = web.Application()
+    app.router.add_get('/', wrapper('/tests/fixtures/hello',
+                                    extensions=['json', 'htm', '.html']))
+    client = await aiohttp_client(app)
+    resp = await client.get('/')
+    assert resp.status == 404
+
+
+async def test_extensions_not_list_of_str(aiohttp_client):
+    app = web.Application()
+    app.router.add_get('/', wrapper('/tests/fixtures/hello',
+                                    extensions=[{}, [], 2]))
+    client = await aiohttp_client(app)
+    resp = await client.get('/')
+    assert resp.status == 500
+
+
+async def test_extensions_return_first(aiohttp_client):
+    app = web.Application()
+    app.router.add_get('/', wrapper('/tests/fixtures/user',
+                                    extensions=['html', 'json', 'txt']))
+    client = await aiohttp_client(app)
+    resp = await client.get('/')
+    assert resp.status == 200
+    assert resp.headers['content-type'] == 'application/json'
+
 # todo set_headers

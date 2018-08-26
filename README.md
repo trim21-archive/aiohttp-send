@@ -1,4 +1,6 @@
-# aiohttp_send
+# aiohttp-send
+
+[![codecov](https://codecov.io/gh/Trim21/aiohttp-send/branch/master/graph/badge.svg)](https://codecov.io/gh/Trim21/aiohttp-send)
 
 Send file in [aiohttp](https://github.com/aio-libs/aiohttp)
 
