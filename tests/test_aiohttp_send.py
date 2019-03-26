@@ -385,8 +385,6 @@ async def test_last_modified(aiohttp_client):
     assert 'GMT' in resp.headers['last-modified']
 
 
-# todo extensions
-
 async def test_no_ext_404(aiohttp_client):
     app = web.Application()
     app.router.add_get('/', wrapper('/tests/fixtures/user', ))

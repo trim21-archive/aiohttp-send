@@ -1,19 +1,17 @@
+import datetime
 import mimetypes
+import os
 import re
-# from typing import List, Union
-from urllib.parse import unquote_plus
-import logging
-from os.path import splitdrive, normpath, realpath, abspath, join, basename
-from os import path
-# import typing
 import types
+from os import path
+from os.path import splitdrive, normpath, join
+from typing import List
+from urllib.parse import unquote_plus
+
 import aiofiles
 import aiofiles.os
-import aiohttp.web
 from aiohttp import web
 from multidict import CIMultiDict
-import os
-import datetime
 
 
 async def send(request, file_path, root='', index='', immutable=False,
@@ -152,7 +150,7 @@ async def _prepare(request,
             file_path = file_path + '.gz'
             encoding_ext = '.gz'
 
-    if extensions and not re.findall('\.[^/^\\\\]*$', file_path):
+    if extensions and not re.findall(r'\.[^/^\\]*$', file_path):
         l = list(extensions)
         for ext in l:
             if not isinstance(ext, str):
