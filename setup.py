@@ -26,14 +26,9 @@ def _get_version():
 
 
 version = _get_version()
+os.environ['PBR_VERSION'] = version
+
 if not version:
     raise ValueError('Unable to determine version.')
 
-install_requires = [line.strip() for line in
-                    open('requirements.txt', 'r', encoding='utf8').readlines()
-                    if line.strip()]
-
-setup(
-    version=version,
-    install_requires=install_requires,
-)
+setup(pbr=True)

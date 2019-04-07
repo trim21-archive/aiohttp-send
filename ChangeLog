@@ -1,0 +1,24 @@
+CHANGES
+=======
+
+v0.0.8
+------
+
+* fix(build): pypi description will rendered correctly
+* fix(build): classifiers
+
+v0.0.7
+------
+
+* fix(build): pypi description will be rendered correctly
+* 0.0.5
+* set gzip and brotli defult true
+* 0.0.4 fix py3.5
+* fix py 3.5
+* update readme
+* py3.5 compatible 0.0.3
+* fully tested 0.0.2
+* update readme
+* update readme
+* add tests and fix bugs
+* init
